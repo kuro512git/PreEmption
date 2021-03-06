@@ -52,11 +52,13 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
     void Update()
     {
 
+
         //自キャラであれば実行
         if (!myPV.IsMine)
         {
             return;
         }
+
 
 
         //joystick
@@ -65,7 +67,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             transform.localRotation = Quaternion.LookRotation(m_Direction);
             //m_Animator.SetFloat("Speed", Mathf.Max(Mathf.Abs(m_Direction.x), Mathf.Abs(m_Direction.z)));
             m_Animator.SetFloat("Speed", Mathf.Max(Mathf.Abs(m_Direction.x), Mathf.Abs(m_Direction.z)));
-            Debug.Log(Mathf.Max(Mathf.Abs(m_Direction.x)));
+            //Debug.Log(Mathf.Max(Mathf.Abs(m_Direction.x)));
             //m_Rigidbody.MovePosition(m_Direction * m_Speed * Time.deltaTime);
             if (transform.position.y > 0)
             {
@@ -75,17 +77,30 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             {
                 posi_y = 0f;
             }
-            
+
             //m_Rigidbody.MovePosition(new Vector3( transform.position.x + m_VariableJoystick.Horizontal*8 * Time.deltaTime, posi_y * Time.deltaTime, transform.position.z + m_VariableJoystick.Vertical* 8 * Time.deltaTime));
             m_Rigidbody.velocity = transform.forward * m_Speed;
+            if (isGrounded == false)
+            {
+                m_Rigidbody.AddForce(0, -50, 0, ForceMode.Acceleration);
+            }
+            
+            //地面との当たり判定で離れたらaddforceでY軸方向のちからを上から少しかけ、地面におしつける
+            //addforceでまとめた方が、リアルに近い考え方で構築できる
+            //制限速度をこえたら何もしない　というやりかたもいいかも
+            //if (制限速度）{ // 加速しない; }
+
+            //m_Rigidbody.AddForce(transform.forward * m_Speed, ForceMode.Impulse);//吹っ飛んでいく
+            //m_Rigidbody.AddForce(transform.forward * m_Speed, ForceMode.Force);//止めるときはaddforceを使用して逆向きの力をかける
+            //m_Rigidbody.AddForce(transform.forward * m_Speed, ForceMode.Acceleration);
+
+            //物英演算との合成処理　車のブレーキのような逆向きの力　back
         }
         else
         {
             m_Animator.SetFloat("Speed", 0);
             //transform.position += transform.forward * 0.05f;
         }
-
-
 
         /*
         //joystick
@@ -109,13 +124,22 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
 
     public void FixedUpdate()
     {
+
         m_Direction = Vector3.forward * m_VariableJoystick.Vertical + Vector3.right * m_VariableJoystick.Horizontal;
+        
 
     }
 
 
     private void OnTriggerEnter(Collider other)
     {
+        //コインに衝突した場合（追加）
+        if (other.gameObject.tag == "key")
+        {
+            //接触したコインのオブジェクトを破棄（追加）
+            Destroy(other.gameObject);
+        }
+
 
         //コインに衝突した場合
         if (other.gameObject.tag == "CoinTag")
