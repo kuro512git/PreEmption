@@ -8,7 +8,10 @@ public class DogController : MonoBehaviour
     [SerializeField] GameObject target1;
     [SerializeField] GameObject target2;
     [SerializeField] GameObject target3;
+    public GameObject tmpTarget;
     public GameObject xTarget;
+
+    GameObject[] array = new GameObject[7];
 
     private NavMeshAgent myAgent;
 
@@ -24,23 +27,32 @@ public class DogController : MonoBehaviour
             transform.position = hit.position;
         }
 
-
         //NavMeshPath path;
         var path = new NavMeshPath();
         NavMesh.CalculatePath(transform.position, target1.transform.position, NavMesh.AllAreas, path);
 
-        var length = path.corners[path.corners.Length - 1] - target1.transform.position;
-        if (length.magnitude > 1.0f)
-        {
-            Debug.Log("到達しません");
-        }
-
+        array[0] = target1;
+        array[1] = target2;
+        array[2] = target3;
+        array[3] = target1;
+        array[4] = target2;
+        array[5] = target3;
+        array[6] = target1;
+        int num = Random.Range(0, 6);
+        xTarget = array[num];
     }
 
     void Update()
     {
+        //destination
+        myAgent.SetDestination(xTarget.transform.position);
 
+    }
+
+    private void turn_dog()
+    {
         // 次に目指すべき位置を取得
+        //steeringTarget
         var nextPoint = myAgent.steeringTarget;
         Vector3 targetDir = nextPoint - transform.position;
 
@@ -60,40 +72,38 @@ public class DogController : MonoBehaviour
         // targetに向かって移動します。
         myAgent.SetDestination(target1.transform.position);
         myAgent.nextPosition = transform.position;
-
     }
 
     private void OnTriggerEnter(Collider other)
     {
 
-
         //　ターゲットに接触したかどうかの判定
         if (other.gameObject.tag == "target")
         {
-            myAgent.transform.position = new Vector3(myAgent.transform.position.x + 20, myAgent.transform.position.y, myAgent.transform.position.z);
-            int number = Random.Range(1, 3);
             //anim.SetBool("Attack" + number, true);
-            //Debug.Log(other.gameObject.tag);
+            Debug.Log(other.gameObject.tag);
+
+
+
+            int number = Random.Range(0, 6);
+            tmpTarget = array[number];
+
+            //今と次のターゲットを比べる
+            if (tmpTarget != xTarget)
+            {
+                xTarget = tmpTarget;
+            }
+            else
+            {
+                //今と次のターゲットが同じだったら入れ替わるまでやりなおし
+                do
+                {
+                    number = Random.Range(0, 6);
+                    tmpTarget = array[number];
+                } while (tmpTarget == xTarget);
+                xTarget = tmpTarget;
+            }
             
-            switch (number)
-            {
-                case 1: xTarget = target1; break;
-                case 2: xTarget = target2; break;
-                case 3: xTarget = target3; break;
-            }
-
-            Debug.Log(xTarget);
-
-            //NavMeshPath path;
-            var path2 = new NavMeshPath();
-            NavMesh.CalculatePath(transform.position, xTarget.transform.position, NavMesh.AllAreas, path2);
-            /*
-            var length = path.corners[path.corners.Length - 1] - xTarget.transform.position;
-            if (length.magnitude > 1.0f)
-            {
-                Debug.Log("到達しません");
-            }
-            */
         }
     }
 }
