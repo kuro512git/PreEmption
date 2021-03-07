@@ -51,6 +51,9 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
 
     public Vector3 myTransform;
 
+    private float pos_x;
+    private float pos_z;
+
 
 
     // Use this for initialization
@@ -99,7 +102,39 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
         if(m_key_Rigidbody.transform.position.y < 0.5)
         {
             m_key_Rigidbody.isKinematic = true;
-            m_key_Rigidbody.transform.position = new Vector3(m_key_Rigidbody.transform.position.x, m_key_Rigidbody.transform.position.y + 0.75f, m_key_Rigidbody.transform.position.z);
+            if(m_key_Rigidbody.transform.position.x < -50f)
+            {
+                pos_x = -50f;
+            }
+            else
+            {
+                pos_x = m_key_Rigidbody.transform.position.x;
+            }
+            if (m_key_Rigidbody.transform.position.x > 46.5f)
+            {
+                pos_x = 46.5f;
+            }
+            else
+            {
+                pos_x = m_key_Rigidbody.transform.position.x;
+            }
+            if (m_key_Rigidbody.transform.position.z > -23f)
+            {
+                pos_z = 23f;
+            }
+            else
+            {
+                pos_z = m_key_Rigidbody.transform.position.z;
+            }
+            if (m_key_Rigidbody.transform.position.z > 73f)
+            {
+                pos_z = 73f;
+            }
+            else
+            {
+                pos_z = m_key_Rigidbody.transform.position.z;
+            }
+            m_key_Rigidbody.transform.position = new Vector3(pos_x, m_key_Rigidbody.transform.position.y + 0.75f, pos_z);
         }
 
 
@@ -229,20 +264,27 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
         //コインに衝突した場合（追加）
         if (collision.gameObject.tag == "dog")
         {
+            if (script.key_flg != 0)
+            {
+                //重力有効
+                 m_key_Rigidbody.isKinematic = false;
+
+                Debug.Log(collision.gameObject.tag);
+                float rx = Random.Range(2f, 6f);
+                float ry = Random.Range(2f, 6f);
+                float rz = Random.Range(2f, 6f);
+                m_key_Rigidbody.AddForce(rx,ry,rz, ForceMode.Impulse);
+            
+                m_key_collider = m_key.GetComponent<Collider>();
+                m_key_collider.isTrigger = true;
+
+                //カギを持ってなかったら敵にあたっても音はならなさない
+
+                audioSource.clip = dropkey;
+                audioSource.Play();
+            }
             script.key_flg = 0;
-            //重力有効
-            m_key_Rigidbody.isKinematic = false;
 
-            Debug.Log(collision.gameObject.tag);
-            float rx = Random.Range(2f, 6f);
-            float ry = Random.Range(2f, 6f);
-            float rz = Random.Range(2f, 6f);
-            m_key_Rigidbody.AddForce(rx,ry,rz, ForceMode.Impulse);
-            m_key_collider = m_key.GetComponent<Collider>();
-            m_key_collider.isTrigger = true;
-
-            audioSource.clip = dropkey;
-            audioSource.Play();
         }
     }
  
