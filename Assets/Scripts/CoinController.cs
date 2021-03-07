@@ -18,4 +18,8 @@ public class CoinController : MonoBehaviour
         //回転
         this.transform.Rotate(0, 3, 0);
     }
+
+
+
+
 }

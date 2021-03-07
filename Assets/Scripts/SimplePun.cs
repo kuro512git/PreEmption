@@ -6,9 +6,16 @@ using Photon.Realtime;
 public class SimplePun : MonoBehaviourPunCallbacks
 {
 
+    //Keyの取得フラグ
+    public int key_flg;
+
+
+
     // Use this for initialization
     void Start()
     {
+        key_flg = 0;
+
         //旧バージョンでは引数必須でしたが、PUN2では不要です。
         PhotonNetwork.ConnectUsingSettings();
     }

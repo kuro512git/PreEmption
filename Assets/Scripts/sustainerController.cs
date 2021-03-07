@@ -21,7 +21,12 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
     [SerializeField] float m_Speed = 1;
     private Rigidbody m_Rigidbody;
     private Vector3 m_Direction;
-    private Camera m_Camera;
+    //private Camera m_Camera;
+
+    //カギオブジェクトなど
+    private GameObject m_key;
+    private Collider m_key_collider;
+    private Rigidbody m_key_Rigidbody;
 
     private Transform _transform;
     private float posi_y;
@@ -30,18 +35,42 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
     public PhotonView myPV;
     public PhotonTransformView myPTV;
 
+    //カギの衝突音
+    public AudioClip getkey;
+
+    //カギを落とす音
+    public AudioClip dropkey;
+
+    //コインの衝突音
+    public AudioClip getcoin;
+    AudioSource audioSource;
+
+    //ゲームマネージャ（GameObject）スクリプトにアクセス
+    GameObject GamaObj;
+    SimplePun script; //SimplePunScriptが入る変数
+
+    public Vector3 myTransform;
+
+
 
     // Use this for initialization
     void Start()
     {
         if (myPV.IsMine)    //自キャラであれば実行
         {
-            // transformに毎回アクセスすると重いので、キャッシュしておく
-            _transform = transform;
+            //Keyの取得フラグ
+            GamaObj = GameObject.Find("GameObject");
+            script = GamaObj.GetComponent<SimplePun>();
+            
 
             //インスタンスにjoystickを登録
             m_VariableJoystick = GameObject.Find("Variable Joystick").GetComponent<VariableJoystick>();
             m_Rigidbody = GetComponent<Rigidbody>();
+
+            m_key_Rigidbody = GameObject.Find("key").GetComponent<Rigidbody>();
+            m_key = GameObject.Find("key");
+
+            audioSource = GetComponent<AudioSource>();
 
         }
 
@@ -57,6 +86,20 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
         if (!myPV.IsMine)
         {
             return;
+        }
+
+
+        //keyを取得したらkeyは頭の上に表示する
+        if(script.key_flg == 1)
+        {
+
+            m_key_Rigidbody.transform.position = new Vector3(m_Rigidbody.transform.position.x, m_Rigidbody.transform.position.y+ 2.3f, m_Rigidbody.transform.position.z);
+        }
+
+        if(m_key_Rigidbody.transform.position.y < 0.5)
+        {
+            m_key_Rigidbody.isKinematic = true;
+            m_key_Rigidbody.transform.position = new Vector3(m_key_Rigidbody.transform.position.x, m_key_Rigidbody.transform.position.y + 0.75f, m_key_Rigidbody.transform.position.z);
         }
 
 
@@ -85,6 +128,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
                 m_Rigidbody.AddForce(0, -50, 0, ForceMode.Acceleration);
             }
             
+            myTransform = m_Rigidbody.transform.position;
             //地面との当たり判定で離れたらaddforceでY軸方向のちからを上から少しかけ、地面におしつける
             //addforceでまとめた方が、リアルに近い考え方で構築できる
             //制限速度をこえたら何もしない　というやりかたもいいかも
@@ -136,14 +180,23 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
         //コインに衝突した場合（追加）
         if (other.gameObject.tag == "key")
         {
-            //接触したコインのオブジェクトを破棄（追加）
-            Destroy(other.gameObject);
+            script.key_flg = 1;
+            //重力無効
+            m_key_Rigidbody.isKinematic = true;
+            m_key_collider = m_key.GetComponent<Collider>();
+            m_key_collider.isTrigger = false;
+
+            audioSource.clip = getkey;
+            audioSource.Play();
+
         }
+
 
 
         //コインに衝突した場合
         if (other.gameObject.tag == "CoinTag")
         {
+            Debug.Log("coin");
             //スコアを加算
             //this.score += 10;
 
@@ -153,6 +206,11 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             //パーティクルの再生
             GetComponent<ParticleSystem>().Play();
 
+            Debug.Log(other.gameObject.tag);
+            //コインゲットの音
+            audioSource.clip = getcoin;
+            audioSource.Play();
+
             //接触したコインのオブジェクトを破棄
             Destroy(other.gameObject);
         }
@@ -160,11 +218,31 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log(collision.gameObject.tag);
+        
         //　地面に着地したかどうかの判定
         if (collision.gameObject.tag != "graund")
         {
             isGrounded = true;
+        }
+
+
+        //コインに衝突した場合（追加）
+        if (collision.gameObject.tag == "dog")
+        {
+            script.key_flg = 0;
+            //重力有効
+            m_key_Rigidbody.isKinematic = false;
+
+            Debug.Log(collision.gameObject.tag);
+            float rx = Random.Range(2f, 6f);
+            float ry = Random.Range(2f, 6f);
+            float rz = Random.Range(2f, 6f);
+            m_key_Rigidbody.AddForce(rx,ry,rz, ForceMode.Impulse);
+            m_key_collider = m_key.GetComponent<Collider>();
+            m_key_collider.isTrigger = true;
+
+            audioSource.clip = dropkey;
+            audioSource.Play();
         }
     }
  
