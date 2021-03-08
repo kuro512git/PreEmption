@@ -8,10 +8,11 @@ public class DogController : MonoBehaviour
     [SerializeField] GameObject target1;
     [SerializeField] GameObject target2;
     [SerializeField] GameObject target3;
+    [SerializeField] GameObject target4;
     public GameObject tmpTarget;
     public GameObject xTarget;
 
-    GameObject[] array = new GameObject[7];
+    GameObject[] array = new GameObject[8];
 
     private NavMeshAgent myAgent;
 
@@ -34,11 +35,12 @@ public class DogController : MonoBehaviour
         array[0] = target1;
         array[1] = target2;
         array[2] = target3;
-        array[3] = target1;
-        array[4] = target2;
-        array[5] = target3;
-        array[6] = target1;
-        int num = Random.Range(0, 6);
+        array[3] = target4;
+        array[4] = target1;
+        array[5] = target2;
+        array[6] = target3;
+        array[7] = target4;
+        int num = Random.Range(0, 7);
         xTarget = array[num];
     }
 
@@ -85,7 +87,7 @@ public class DogController : MonoBehaviour
 
 
 
-            int number = Random.Range(0, 6);
+            int number = Random.Range(0, 7);
             tmpTarget = array[number];
 
             //今と次のターゲットを比べる
