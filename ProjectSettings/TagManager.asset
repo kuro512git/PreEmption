@@ -11,6 +11,8 @@ TagManager:
   - dog
   - target
   - CoinTag
+  - LeftGate
+  - RightGate
   layers:
   - Default
   - TransparentFX
