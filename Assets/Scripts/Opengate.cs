@@ -48,6 +48,7 @@ public class Opengate : MonoBehaviour
         gatecamera.enabled = false;
         maincamera.enabled = true;
 
+        //キーフラグを取得するためSimplePunを利用している
         GamaObj = GameObject.Find("GameObject");
         script = GamaObj.GetComponent<SimplePun>();
 
