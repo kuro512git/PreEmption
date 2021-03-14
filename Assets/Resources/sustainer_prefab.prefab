@@ -1016,6 +1016,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGrounded: 0
+  gatecamera_sus: {fileID: 0}
+  maincamera_sus: {fileID: 0}
   m_VariableJoystick: {fileID: 3881087803549984439, guid: ec536a7718376554185e4a856d5ae230,
     type: 3}
   m_Animator: {fileID: 5197689169098004962}

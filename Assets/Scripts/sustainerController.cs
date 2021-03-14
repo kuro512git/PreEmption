@@ -14,6 +14,9 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
     [SerializeField]
     private bool isGrounded;
 
+    //メインカメラとゴールカメラ
+    public Camera gatecamera_sus;
+    public Camera maincamera_sus;
 
     //joystick
     [SerializeField] VariableJoystick m_VariableJoystick;
@@ -49,22 +52,41 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
     GameObject GamaObj;
     SimplePun script; //SimplePunScriptが入る変数
 
+    GameObject GateObj;
+    Opengate opengatescript; //SimplePunScriptが入る変数
+
+    //ゴールのgameobject
+    GameObject GoalGameObj;
+
     public Vector3 myTransform;
 
     private float pos_x;
     private float pos_z;
+    private Animator myAnimator;
+    private Animator myGAnimator;
 
+    //ゲーム終了の判定
+    private bool isEnd = false;
 
 
     // Use this for initialization
     void Start()
     {
+
+        this.myAnimator = GetComponent<Animator>();
+
+
         if (myPV.IsMine)    //自キャラであれば実行
         {
             //Keyの取得フラグ
             GamaObj = GameObject.Find("GameObject");
             script = GamaObj.GetComponent<SimplePun>();
-            
+
+            GoalGameObj = GameObject.Find("GoalTxt");
+
+            //扉にアタッチしているオープンゲートスクリプト取得
+            GateObj = GameObject.Find("LeftCore");
+            opengatescript = GateObj.GetComponent<Opengate>();
 
             //インスタンスにjoystickを登録
             m_VariableJoystick = GameObject.Find("Variable Joystick").GetComponent<VariableJoystick>();
@@ -160,7 +182,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             m_Rigidbody.velocity = transform.forward * m_Speed;
             if (isGrounded == false)
             {
-                m_Rigidbody.AddForce(0, -50, 0, ForceMode.Acceleration);
+                m_Rigidbody.AddForce(0, -100, 0, ForceMode.Acceleration);
             }
             
             myTransform = m_Rigidbody.transform.position;
@@ -249,6 +271,19 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             //接触したコインのオブジェクトを破棄
             Destroy(other.gameObject);
         }
+
+        //ゴール地点に到達した場合
+        if (other.gameObject.tag == "GoalTag")
+        {
+            opengatescript.gatecamera.enabled = true;
+            opengatescript.maincamera.enabled = false;
+            this.isEnd = true;
+            myGAnimator = GoalGameObj.GetComponent<Animator>();
+            myGAnimator.enabled = true;
+            this.myAnimator.enabled = true;
+            this.myAnimator.SetBool("Rising", true);
+        }
+
     }
 
     private void OnCollisionEnter(Collision collision)
