@@ -294,7 +294,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
 
 
         //邪魔キャラに衝突した場合（追加）
-        if (collision.gameObject.tag == "dog")
+        if ((collision.gameObject.tag == "dog") || (collision.gameObject.tag == "player"))
         {
             if (script.key_flg != 0)
             {
