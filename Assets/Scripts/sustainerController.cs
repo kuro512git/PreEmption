@@ -82,6 +82,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             GamaObj = GameObject.Find("GameObject");
             script = GamaObj.GetComponent<SimplePun>();
 
+            //ゴールした時のゴールという文字　アニメーションでせりあがる
             GoalGameObj = GameObject.Find("GoalTxt");
 
             //扉にアタッチしているオープンゲートスクリプト取得
@@ -92,6 +93,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             m_VariableJoystick = GameObject.Find("Variable Joystick").GetComponent<VariableJoystick>();
             m_Rigidbody = GetComponent<Rigidbody>();
 
+            //ゴールのkey
             m_key_Rigidbody = GameObject.Find("key").GetComponent<Rigidbody>();
             m_key = GameObject.Find("key");
 
@@ -121,6 +123,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
             m_key_Rigidbody.transform.position = new Vector3(m_Rigidbody.transform.position.x, m_Rigidbody.transform.position.y+ 2.3f, m_Rigidbody.transform.position.z);
         }
 
+        //keyがステージ外に飛び出すのを防ぐ
         if(m_key_Rigidbody.transform.position.y < 0.5)
         {
             m_key_Rigidbody.isKinematic = true;
@@ -234,7 +237,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
 
     private void OnTriggerEnter(Collider other)
     {
-        //コインに衝突した場合（追加）
+        //keyに衝突した場合（追加）
         if (other.gameObject.tag == "key")
         {
             script.key_flg = 1;
@@ -253,12 +256,6 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
         //コインに衝突した場合
         if (other.gameObject.tag == "CoinTag")
         {
-            Debug.Log("coin");
-            //スコアを加算
-            //this.score += 10;
-
-            //ScoreTextに獲得した点数を表示
-            //this.scoreText.GetComponent<Text>().text = "Score " + this.score + "pt";
 
             //パーティクルの再生
             GetComponent<ParticleSystem>().Play();
@@ -296,7 +293,7 @@ public class sustainerController : Photon.Pun.MonoBehaviourPun
         }
 
 
-        //コインに衝突した場合（追加）
+        //邪魔キャラに衝突した場合（追加）
         if (collision.gameObject.tag == "dog")
         {
             if (script.key_flg != 0)
